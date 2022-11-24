@@ -17,8 +17,8 @@ func GetALLMovieRepository() ([]model.Movie, error) {
 	redisCli := config.ConnectRedis()
 	data, err := redisCli.Get(context.Background(), "movies").Result()
 	if err == nil {
-		err = json.Unmarshal([]byte(data), &movies)
-		if err == nil {
+		json.Unmarshal([]byte(data), &movies)
+		if len(movies) > 0 {
 			return movies, nil
 		}
 	}
@@ -27,11 +27,11 @@ func GetALLMovieRepository() ([]model.Movie, error) {
 	db := config.ConnectDatabase()
 	err = db.Model(&model.Movie{}).Preload("Actors").Find(&movies).Error
 	if err != nil {
-		return movies, model.ErrorService{Code: http.StatusInternalServerError, Message: err.Error()}
+		return movies, model.NewErrorServiceBuilder().SetCode(http.StatusInternalServerError).SetMessage(err.Error())
 	}
 
 	if len(movies) == 0 {
-		return movies, model.ErrorService{Code: http.StatusNotFound, Message: "data not found"}
+		return movies, model.NewErrorServiceBuilder().SetCode(http.StatusNotFound).SetMessage("data not found")
 	}
 
 	// set to redis, we dont mind the status
@@ -48,8 +48,8 @@ func GetMovieRepository(name string) (model.Movie, error) {
 	redisCli := config.ConnectRedis()
 	data, err := redisCli.Get(context.Background(), name).Result()
 	if err == nil {
-		err = json.Unmarshal([]byte(data), &movie)
-		if err == nil {
+		json.Unmarshal([]byte(data), &movie)
+		if movie.Name != "" {
 			return movie, nil
 		}
 	}
@@ -58,11 +58,11 @@ func GetMovieRepository(name string) (model.Movie, error) {
 	db := config.ConnectDatabase()
 	err = db.Where("name = ?", name).Model(&model.Movie{}).Preload("Actors").Find(&movie).Error
 	if err != nil {
-		return movie, model.ErrorService{Code: http.StatusInternalServerError, Message: err.Error()}
+		return movie, model.NewErrorServiceBuilder().SetCode(http.StatusInternalServerError).SetMessage(err.Error())
 	}
 
 	if movie.Name == "" {
-		return movie, model.ErrorService{Code: http.StatusNotFound, Message: "data not found"}
+		return movie, model.NewErrorServiceBuilder().SetCode(http.StatusNotFound).SetMessage("data not found")
 	}
 
 	// set to redis, we dont mind the status
@@ -76,7 +76,7 @@ func CreateMovieRepository(request *model.Movie) error {
 	db := config.ConnectDatabase()
 	err := db.Create(request).Error
 	if err != nil {
-		return model.ErrorService{Code: http.StatusInternalServerError, Message: err.Error()}
+		return model.NewErrorServiceBuilder().SetCode(http.StatusInternalServerError).SetMessage(err.Error())
 	}
 
 	return nil
@@ -88,7 +88,7 @@ func DeleteMovieRepository(name string) error {
 	db := config.ConnectDatabase()
 	err := db.Where("name = ?", name).Delete(&movie).Error
 	if err != nil {
-		return model.ErrorService{Code: http.StatusInternalServerError, Message: err.Error()}
+		return model.NewErrorServiceBuilder().SetCode(http.StatusInternalServerError).SetMessage(err.Error())
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func DeleteMovieRepository(name string) error {
 func TRXUpdateMovieActorRepository(trx *gorm.DB, request *model.Movie) error {
 	err := trx.Model(request).Association("Actors").Replace(request.Actors)
 	if err != nil {
-		return model.ErrorService{Code: http.StatusInternalServerError, Message: err.Error()}
+		return model.NewErrorServiceBuilder().SetCode(http.StatusInternalServerError).SetMessage(err.Error())
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func TRXUpdateMovieActorRepository(trx *gorm.DB, request *model.Movie) error {
 func TRXReplaceMovieRepository(trx *gorm.DB, request *model.Movie) error {
 	err := trx.Save(request).Error
 	if err != nil {
-		return model.ErrorService{Code: http.StatusInternalServerError, Message: err.Error()}
+		return model.NewErrorServiceBuilder().SetCode(http.StatusInternalServerError).SetMessage(err.Error())
 	}
 
 	return nil

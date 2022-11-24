@@ -13,7 +13,7 @@ func GetALLMovieHandler(ctx *gin.Context) {
 
 	data, err := library.GetALLMovieLibrary(&name)
 	if err != nil {
-		errService, _ := err.(model.ErrorService)
+		errService, _ := err.(*model.ErrorService)
 		ctx.JSON(errService.Code, model.Response{Message: errService.Error()})
 		return
 	}
@@ -27,7 +27,7 @@ func CreateMovieHandler(ctx *gin.Context) {
 
 	err := library.CreateMovieLibrary(&movie)
 	if err != nil {
-		errService, _ := err.(model.ErrorService)
+		errService, _ := err.(*model.ErrorService)
 		ctx.JSON(errService.Code, model.Response{Message: errService.Error()})
 		return
 	}
@@ -47,7 +47,7 @@ func ReplaceMovieHandler(ctx *gin.Context) {
 
 	err := library.ReplaceMovieLibrary(&movie, name)
 	if err != nil {
-		errService, _ := err.(model.ErrorService)
+		errService, _ := err.(*model.ErrorService)
 		ctx.JSON(errService.Code, model.Response{Message: errService.Error()})
 		return
 	}
@@ -67,7 +67,7 @@ func EditMovieHandler(ctx *gin.Context) {
 
 	err := library.EditMovieLibrary(&movie, name)
 	if err != nil {
-		errService, _ := err.(model.ErrorService)
+		errService, _ := err.(*model.ErrorService)
 		ctx.JSON(errService.Code, model.Response{Message: errService.Error()})
 		return
 	}
@@ -84,7 +84,7 @@ func DeleteMovieHandler(ctx *gin.Context) {
 
 	err := library.DeleteMovieLibrary(name)
 	if err != nil {
-		errService, _ := err.(model.ErrorService)
+		errService, _ := err.(*model.ErrorService)
 		ctx.JSON(errService.Code, model.Response{Message: errService.Error()})
 		return
 	}
