@@ -14,6 +14,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestCreateMovieHandler(t *testing.T) {
+	c := http.Client{}
+
+	payload := model.Movie{
+		Name:   "black panther",
+		Genre:  "action",
+		Year:   "2017",
+		Actors: []model.Actor{{Name: "Budi", Gender: "male"}},
+	}
+
+	payloadByte, _ := json.Marshal(payload)
+
+	r, err := c.Post("http://localhost:8080/movie/create", "application/json", bytes.NewBuffer(payloadByte))
+	if err != nil {
+		log.Printf("error when call api, err => %v", err.Error())
+	}
+
+	assert.Equal(t, http.StatusCreated, r.StatusCode, "can't create movie")
+}
+
 func TestGetALLMovieHandler(t *testing.T) {
 	c := http.Client{}
 
@@ -38,26 +58,6 @@ func TestGetALLMovieHandler(t *testing.T) {
 	log.Printf("response data => %+v", responseData)
 
 	assert.Equal(t, true, len(responseData.Data) > 0, "can't get movies")
-}
-
-func TestCreateMovieHandler(t *testing.T) {
-	c := http.Client{}
-
-	payload := model.Movie{
-		Name:   "black panther",
-		Genre:  "action",
-		Year:   "2017",
-		Actors: []model.Actor{{Name: "Budi", Gender: "male"}},
-	}
-
-	payloadByte, _ := json.Marshal(payload)
-
-	r, err := c.Post("http://localhost:8080/movie/create", "application/json", bytes.NewBuffer(payloadByte))
-	if err != nil {
-		log.Printf("error when call api, err => %v", err.Error())
-	}
-
-	assert.Equal(t, http.StatusCreated, r.StatusCode, "can't create movie")
 }
 
 func TestReplaceMovieHandler(t *testing.T) {
