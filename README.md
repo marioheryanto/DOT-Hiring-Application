@@ -2,6 +2,7 @@
 
 => clean architecture (controller, library, repository, model)
 => SOLID Principal (contoh: tiap repository function hanya memiliki 1 tugas, error data type disubtitusi menggunakan custom struct 'ErrorService' tetapi masih men-satisfy interface tsb.)
+=> Implement Builder Design pattern untuk membuat struct 'ErrorService'
 
 
 
